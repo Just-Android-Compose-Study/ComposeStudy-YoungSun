@@ -134,7 +134,7 @@ ReusableComposeNode() : UI 요소인 Node를 내보낸다. (=Compose 내부 자�
 - **skippableUpdate** : 변경자(modifier)를 조작
 - **content** : 자식 Node가 되는 또 다른 Composable 함수를 포함
 
-### ReusalbeComposeNode()
+### ReusableComposeNode()
 
 ```kotlin
 if (currentComposer.applier !is E) invalidApplier()
@@ -155,7 +155,7 @@ currentComposer.endReplaceableGroup()
 currentComposer.endNode()
 ```
 
-ReusalbeComposeNode는 새로운 Node가 생성되어야 할지, 기존의 Node를 재사용할지 결정하는 역할을 한다.
+ReusableComposeNode 새로운 Node가 생성되어야 할지, 기존의 Node를 재사용할지 결정하는 역할을 한다.
 
 그러고 나서 업데이트를 수행하고, 마지막으로 content()를 호출해 콘텐츠를 노드에 내보낸다.
 

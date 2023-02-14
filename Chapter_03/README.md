@@ -17,35 +17,35 @@ Composable 함수 명명규칙 → 명사 또는 형용사를 접두어로 갖�
 ### **androidx.compose.material.Text()**
 
 ```kotlin
-		val textColor = color.takeOrElse {
-		        style.color.takeOrElse {
-		            LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
-		        }
-		    }
+val textColor = color.takeOrElse {
+    style.color.takeOrElse {
+        LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
+    }
+}
 
-    val mergedStyle = style.merge(
-        TextStyle(
-            color = textColor,
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            textAlign = textAlign,
-            lineHeight = lineHeight,
-            fontFamily = fontFamily,
-            textDecoration = textDecoration,
-            fontStyle = fontStyle,
-            letterSpacing = letterSpacing
-        )
+val mergedStyle = style.merge(
+    TextStyle(
+        color = textColor,
+        fontSize = fontSize,
+        fontWeight = fontWeight,
+        textAlign = textAlign,
+        lineHeight = lineHeight,
+        fontFamily = fontFamily,
+        textDecoration = textDecoration,
+        fontStyle = fontStyle,
+        letterSpacing = letterSpacing
     )
+)
 
-    BasicText(
-        text,
-        modifier,
-        mergedStyle,
-        onTextLayout,
-        overflow,
-        softWrap,
-        maxLines,
-    )
+BasicText(
+    text,
+    modifier,
+    mergedStyle,
+    onTextLayout,
+    overflow,
+    softWrap,
+    maxLines,
+)
 ```
 
 Text()는 BasicText()를 호출하지만, Text()를 사용하는 이유는 테마의 스타일 정보를 사용하기 때문이다.
@@ -53,55 +53,55 @@ Text()는 BasicText()를 호출하지만, Text()를 사용하는 이유는 테�
 ### **BasicText()**
 
 ```kotlin
-		require(maxLines > 0) { "maxLines should be greater than 0" }
+require(maxLines > 0) { "maxLines should be greater than 0" }
 
-    val selectionRegistrar = LocalSelectionRegistrar.current
-    val density = LocalDensity.current
-    val fontFamilyResolver = LocalFontFamilyResolver.current
+val selectionRegistrar = LocalSelectionRegistrar.current
+val density = LocalDensity.current
+val fontFamilyResolver = LocalFontFamilyResolver.current
 
-    val selectableId =
-        rememberSaveable(text, selectionRegistrar, saver = selectionIdSaver(selectionRegistrar)) {
-            selectionRegistrar?.nextSelectableId() ?: SelectionRegistrar.InvalidSelectableId
-        }
-
-    val controller = remember {
-        TextController(
-            TextState(
-                TextDelegate(
-                    text = AnnotatedString(text),
-                    style = style,
-                    density = density,
-                    softWrap = softWrap,
-                    fontFamilyResolver = fontFamilyResolver,
-                    overflow = overflow,
-                    maxLines = maxLines,
-                ),
-                selectableId
-            )
-        )
+val selectableId =
+    rememberSaveable(text, selectionRegistrar, saver = selectionIdSaver(selectionRegistrar)) {
+    	selectionRegistrar?.nextSelectableId() ?: SelectionRegistrar.InvalidSelectableId
     }
-    val state = controller.state
-    if (!currentComposer.inserting) {
-        controller.setTextDelegate(
-            updateTextDelegate(
-                current = state.textDelegate,
-                text = text,
+
+val controller = remember {
+    TextController(
+        TextState(
+            TextDelegate(
+                text = AnnotatedString(text),
                 style = style,
                 density = density,
                 softWrap = softWrap,
-                fontFamilyResolver = fontFamilyResolver,
-                overflow = overflow,
+                fontFamilyResolver = fontFamilyResolver                  
+		overflow = overflow,
                 maxLines = maxLines,
-            )
+            ),
+            selectableId
         )
-    }
-    state.onTextLayout = onTextLayout
-    controller.update(selectionRegistrar)
-    if (selectionRegistrar != null) {
-        state.selectionBackgroundColor = LocalTextSelectionColors.current.backgroundColor
-    }
+    )
+}
+val state = controller.state
+if (!currentComposer.inserting) {
+    controller.setTextDelegate(
+    updateTextDelegate(
+        current = state.textDelegate,
+        text = text,
+        style = style,
+        density = density,
+        softWrap = softWrap,
+        fontFamilyResolver = fontFamilyResolver,
+        overflow = overflow,
+        maxLines = maxLines,
+        )
+    )
+}
+state.onTextLayout = onTextLayout
+controller.update(selectionRegistrar)
+if (selectionRegistrar != null) {
+    state.selectionBackgroundColor = LocalTextSelectionColors.current.backgroundColor
+}
 
-    Layout(modifier.then(controller.modifiers), controller.measurePolicy)
+Layout(modifier.then(controller.modifiers), controller.measurePolicy)
 ```
 
 BasicText()는 최종적으로 Layout()이라는 컴포저블을 호출한다.
@@ -109,20 +109,20 @@ BasicText()는 최종적으로 Layout()이라는 컴포저블을 호출한다.
 ### Layout()
 
 ```kotlin
-		val density = LocalDensity.current
-    val layoutDirection = LocalLayoutDirection.current
-    val viewConfiguration = LocalViewConfiguration.current
-    ReusableComposeNode<ComposeUiNode, Applier<Any>>(
-        factory = ComposeUiNode.Constructor,
-        update = {
-            set(measurePolicy, ComposeUiNode.SetMeasurePolicy)
-            set(density, ComposeUiNode.SetDensity)
-            set(layoutDirection, ComposeUiNode.SetLayoutDirection)
-            set(viewConfiguration, ComposeUiNode.SetViewConfiguration)
-        },
-        skippableUpdate = materializerOf(modifier),
-        content = content
-    )
+val density = LocalDensity.current
+val layoutDirection = LocalLayoutDirection.current
+val viewConfiguration = LocalViewConfiguration.current
+ReusableComposeNode<ComposeUiNode, Applier<Any>>(
+    factory = ComposeUiNode.Constructor,
+    update = {
+        set(measurePolicy, ComposeUiNode.SetMeasurePolicy)
+        set(density, ComposeUiNode.SetDensity)
+        set(layoutDirection, ComposeUiNode.SetLayoutDirection)
+        set(viewConfiguration, ComposeUiNode.SetViewConfiguration)
+    },
+    skippableUpdate = materializerOf(modifier),
+    content = content
+)
 ```
 
 Layout()은 레이아웃을 위한 핵심 컴포저블 함수이고, 자식 요소의 크기와 위치를 지정한다.
@@ -137,21 +137,22 @@ ReusableComposeNode() : UI 요소인 Node를 내보낸다. (=Compose 내부 자�
 ### ReusalbeComposeNode()
 
 ```kotlin
-		if (currentComposer.applier !is E) invalidApplier()
-    currentComposer.startReusableNode()
-    if (currentComposer.inserting) {
-        currentComposer.createNode(factory)
-    } else {
-        currentComposer.useNode()
-    }
-    currentComposer.disableReusing()
-    Updater<T>(currentComposer).update()
-    currentComposer.enableReusing()
-    SkippableUpdater<T>(currentComposer).skippableUpdate()
-    currentComposer.startReplaceableGroup(0x7ab4aae9)
-    content()
-    currentComposer.endReplaceableGroup()
-    currentComposer.endNode()
+if (currentComposer.applier !is E) invalidApplier()
+currentComposer.startReusableNode()
+
+if (currentComposer.inserting) {
+    currentComposer.createNode(factory)
+} else {
+    currentComposer.useNode()
+}
+currentComposer.disableReusing()
+Updater<T>(currentComposer).update()
+currentComposer.enableReusing()
+SkippableUpdater<T>(currentComposer).skippableUpdate()
+currentComposer.startReplaceableGroup(0x7ab4aae9)
+content()
+currentComposer.endReplaceableGroup()
+currentComposer.endNode()
 ```
 
 ReusalbeComposeNode는 새로운 Node가 생성되어야 할지, 기존의 Node를 재사용할지 결정하는 역할을 한다.
@@ -181,12 +182,12 @@ var viewConfiguration: ViewConfiguration
      * Object of pre-allocated lambdas used to make use with ComposeNode allocation-less.
      */
 companion object {
-	val Constructor: () -> ComposeUiNode = LayoutNode.Constructor
-	val SetModifier: ComposeUiNode.(Modifier) -> Unit = { this.modifier = it }
-	val SetDensity: ComposeUiNode.(Density) -> Unit = { this.density = it }
-	val SetMeasurePolicy: ComposeUiNode.(MeasurePolicy) -> Unit = { this.measurePolicy = it }
-	val SetLayoutDirection: ComposeUiNode.(LayoutDirection) -> Unit = { this.layoutDirection = it }
-	val SetViewConfiguration: ComposeUiNode.(ViewConfiguration) -> Unit = { this.viewConfiguration = it }
+    val Constructor: () -> ComposeUiNode = LayoutNode.Constructor
+    val SetModifier: ComposeUiNode.(Modifier) -> Unit = { this.modifier = it }
+    val SetDensity: ComposeUiNode.(Density) -> Unit = { this.density = it }
+    val SetMeasurePolicy: ComposeUiNode.(MeasurePolicy) -> Unit = { this.measurePolicy = it }
+    val SetLayoutDirection: ComposeUiNode.(LayoutDirection) -> Unit = { this.layoutDirection = it }
+    val SetViewConfiguration: ComposeUiNode.(ViewConfiguration) -> Unit = { this.viewConfiguration = it }
 }
 ```
 
@@ -204,17 +205,17 @@ Node
 
 - 컴포저블 함수의 **대부분은 반환 값이 필요가 없**기 때문에 명시하지 않는다.
     - 주 목적이 UI를 구성하는 것이기 때문 (구성 == 그리기 == 내보내기)
-
+    
 - 초기의 상태 값을 설정할 때 사용하는 **remember**{ }
-
+    
     ```kotlin
     @Composable
     inline fun <T> remember(calculation: @DisallowComposableCalls () -> T): T =
         currentComposer.cache(false, calculation)
     ```
-
+    
 - **stringResource**( )
-
+    
     ```kotlin
     @Composable
     @ReadOnlyComposable
@@ -223,13 +224,13 @@ Node
         return resources.getString(id, *formatArgs)
     }
     ```
-
+    
     - resources 역시 컴포저블 함수이다.
     - 컴포저블 함수를 호출하기 위해서는, 컴포저블 함수여야 하며, 컴포저블 함수는 @Composable 어노테이션을 반드시 포함해야 한다.
     - 반환되는 데이터가 컴포즈와 아무런 관련이 없더라도, 이 데이터는 컴포저블 함수에서 호출될 것이기 때문
     - 따라서, 구성과 재구성의 일부인 무언가를 반환해야한다면, 그 함수는 반드시 컴포저블 함수로 만들어야 한다.
     - 명명규칙 → 카멜 표기법 + 동사 또는 동사구로 구성된다.
-
+    
 
 ## UI의 구성과 재구성
 
@@ -338,7 +339,7 @@ fun ColorPicker(color: MutableState<Color>) {
     - parent : CompositionContext
     - content : 선언하는 UI를 위한 컴포저블 함
     - 대부분의 경우, parent를 생략.
-
+    
     ```kotlin
     public fun ComponentActivity.setContent(
         parent: CompositionContext? = null,
@@ -363,13 +364,13 @@ fun ColorPicker(color: MutableState<Color>) {
         }
     }
     ```
-
-  **setParentCompositionContext()**
-
+    
+    **setParentCompositionContext()**
+    
     ```kotlin
     fun setParentCompositionContext(parent: CompositionContext?) {
     	parentContext = parent
     }
     ```
-
+    
     - parent를 생략할 경우 어떻게 되는지 ??
